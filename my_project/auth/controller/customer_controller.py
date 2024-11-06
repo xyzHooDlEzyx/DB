@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from my_project.auth.DAO.models import  Customer, Account, CustomerAccount
 from my_project.auth.service.customer_service import CustomerService
 
 customer_bp = Blueprint('customers', __name__)
@@ -45,16 +46,18 @@ def get_customer_accounts(id):
     return jsonify({'message': 'Customer not found'}), 404
 
 
-@customer_bp.route('/customers/<int:id>/linked_accounts', methods=['GET'])
-def get_linked_accounts(id):
-    customer_accounts = CustomerAccount.query.filter_by(CustomerID=id).all()
-    if not customer_accounts:
-        return jsonify({'message': 'No linked accounts found for this customer'}), 404
+@customer_bp.route('/customers_with_accounts', methods=['GET'])
+def get_customers_with_accounts():
+    customers = Customer.query.all()
+    result = []
 
-    accounts = []
-    for ca in customer_accounts:
-        account = Account.query.get(ca.AccountID)
-        accounts.append(account.to_dict())
+    for customer in customers:
+        customer_data = customer.to_dict()
+        accounts = Account.query.join(CustomerAccount, Account.AccountID == CustomerAccount.AccountID) \
+            .filter(CustomerAccount.CustomerID == customer.CustomerID).all()
 
-    return jsonify(accounts)
+        customer_data['accounts'] = [account.to_dict() for account in accounts]
+        result.append(customer_data)
+
+    return jsonify(result)
 

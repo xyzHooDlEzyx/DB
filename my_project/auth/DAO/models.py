@@ -10,8 +10,8 @@ class Customer(db.Model):
     Email = db.Column(db.String(100), unique=True, nullable=False)
     Phone = db.Column(db.String(15), unique=True, nullable=False)
 
-    accounts = db.relationship('Account', backref='customer', lazy=True)
-    bank_details = db.relationship('BankDetail', backref='customer', lazy=True)
+    accounts = db.relationship('Account', backref='customer', lazy=True, cascade="all, delete")
+    bank_details = db.relationship('BankDetail', backref='customer', lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return f"<Customer {self.FirstName} {self.LastName}>"
@@ -37,8 +37,8 @@ class Account(db.Model):
     AccountType = db.Column(db.String(50), nullable=False)
     CreatedAt = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False)
 
-    cards = db.relationship('Card', backref='account', lazy=True)
-    account_bank_details = db.relationship('AccountBankDetail', backref='account', lazy=True)
+    cards = db.relationship('Card', backref='account', lazy=True, cascade="all, delete")
+    account_bank_details = db.relationship('AccountBankDetail', backref='account', lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return f"<Account {self.AccountNumber}>"
@@ -64,7 +64,7 @@ class Card(db.Model):
     ExpiryDate = db.Column(db.Date, nullable=False)
     CardType = db.Column(db.String(50), nullable=False)
 
-    bank_detail = db.relationship('BankDetail', backref='card', lazy=True)
+    bank_detail = db.relationship('BankDetail', backref='card', lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return f"<Card {self.CardNumber}>"

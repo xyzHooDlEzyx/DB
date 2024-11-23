@@ -42,3 +42,8 @@ class AccountService:
             db.session.commit()
             return account
         return None
+
+    @staticmethod
+    def get_cards_by_account_id(account_id):
+        account = Account.query.get(account_id)
+        return account.cards if account else None

@@ -10,7 +10,6 @@ class Customer(db.Model):
     Email = db.Column(db.String(100), unique=True, nullable=False)
     Phone = db.Column(db.String(15), unique=True, nullable=False)
 
-    accounts = db.relationship('Account', backref='customer', lazy=True, cascade="all, delete")
     bank_details = db.relationship('BankDetail', backref='customer', lazy=True, cascade="all, delete")
 
     def __repr__(self):
@@ -30,7 +29,6 @@ class Account(db.Model):
     __tablename__ = 'accounts'
 
     AccountID = db.Column(db.Integer, primary_key=True)
-    CustomerID = db.Column(db.Integer, db.ForeignKey('customers.CustomerID'), nullable=False)
     AccountNumber = db.Column(db.String(20), unique=True, nullable=False)
     Balance = db.Column(db.Numeric(10, 2), nullable=False)
     Currency = db.Column(db.String(10), nullable=False)
@@ -46,12 +44,26 @@ class Account(db.Model):
     def to_dict(self):
         return {
             'AccountID': self.AccountID,
-            'CustomerID': self.CustomerID,
             'AccountNumber': self.AccountNumber,
             'Balance': str(self.Balance),
             'Currency': self.Currency,
             'AccountType': self.AccountType,
             'CreatedAt': self.CreatedAt
+        }
+
+class CustomerAccount(db.Model):
+    __tablename__ = 'customeraccounts'
+
+    CustomerID = db.Column(db.Integer, db.ForeignKey('customers.CustomerID'), primary_key=True, nullable=False)
+    AccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), primary_key=True, nullable=False)
+
+    def __repr__(self):
+        return f"<CustomerAccount {self.CustomerID} - {self.AccountID}>"
+
+    def to_dict(self):
+        return {
+            'CustomerID': self.CustomerID,
+            'AccountID': self.AccountID
         }
 
 
@@ -134,22 +146,6 @@ class Beneficiary(db.Model):
             'BeneficiaryName': self.BeneficiaryName,
             'BankDetailsID': self.BankDetailsID,
             'BeneficiaryType': self.BeneficiaryType
-        }
-
-
-class CustomerAccount(db.Model):
-    __tablename__ = 'customeraccounts'
-
-    CustomerID = db.Column(db.Integer, db.ForeignKey('customers.CustomerID'), primary_key=True, nullable=False)
-    AccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), primary_key=True, nullable=False)
-
-    def __repr__(self):
-        return f"<CustomerAccount {self.CustomerID} - {self.AccountID}>"
-
-    def to_dict(self):
-        return {
-            'CustomerID': self.CustomerID,
-            'AccountID': self.AccountID
         }
 
 

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from my_project.auth.DAO.models import  Card, Account
 from my_project.auth.service.account_service import AccountService
 
 account_bp = Blueprint('accounts', __name__)
@@ -29,9 +30,9 @@ def update_account(id):
         return jsonify({'message': 'Account updated successfully'})
     return jsonify({'message': 'Account not found'}), 404
 
-@account_bp.route('/accounts/<int:id>', methods=['DELETE'])
-def delete_account(id):
-    account = AccountService.delete_account(id)
-    if account:
-        return jsonify({'message': 'Account deleted successfully'})
-    return jsonify({'message': 'Account not found'}), 404
+@account_bp.route('/accounts/<int:id>/cards', methods=['GET'])
+def get_account_cards(id):
+    cards = AccountService.get_cards_by_account_id(id)
+    if cards is not None:
+        return jsonify([card.to_dict() for card in cards])
+    return jsonify({'message': 'No cards found for this account or account does not exist'}), 404

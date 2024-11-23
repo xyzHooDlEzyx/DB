@@ -1,4 +1,4 @@
 app:
   debug: true
   secret_key: "megasecretkey12345"
-  database_url: "mysql+mysqlconnector://root:admin@localhost/private_bank"
+  database_url: "mysql+mysqlconnector://root:admin@localhost/private_bank_lab3/4"

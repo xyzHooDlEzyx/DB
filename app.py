@@ -6,6 +6,10 @@ from my_project.auth.controller.account_controller import account_bp
 from my_project.auth.controller.transaction_controller import transaction_bp
 from my_project.auth.controller.card_controller import card_bp
 from my_project.auth.controller.bankdetail_controller import bankdetail_bp
+from my_project.auth.controller.customeraddress_controller import customeraddress_bp
+from my_project.auth.controller.customeraccount_controller import customeraccount_bp
+from my_project.auth.controller.column_stat_controller import stat_bp
+from my_project.auth.controller.table_split_controller import split_accounts_bp
 
 app = Flask(__name__)
 
@@ -24,6 +28,10 @@ app.register_blueprint(account_bp, url_prefix='/api')
 app.register_blueprint(transaction_bp, url_prefix='/api')
 app.register_blueprint(card_bp, url_prefix='/api')
 app.register_blueprint(bankdetail_bp, url_prefix='/api')
+app.register_blueprint(customeraddress_bp, url_prefix='/api')
+app.register_blueprint(customeraccount_bp, url_prefix='/api')
+app.register_blueprint(stat_bp, url_prefix='/api')
+app.register_blueprint(split_accounts_bp, url_prefix='/api')
 
 @app.route('/')
 def home():

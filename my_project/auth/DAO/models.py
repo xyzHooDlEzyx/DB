@@ -24,6 +24,31 @@ class Customer(db.Model):
             'Phone': self.Phone
         }
 
+class CustomerAddress(db.Model):
+    __tablename__ = 'customeraddresses'
+
+    AddressID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CustomerID = db.Column(db.Integer, nullable=False)
+    Street = db.Column(db.String(255), nullable=False)
+    City = db.Column(db.String(100), nullable=False)
+    State = db.Column(db.String(100), nullable=True)
+    PostalCode = db.Column(db.String(20), nullable=False)
+    Country = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"<CustomerAddress {self.AddressID} - {self.Street}, {self.City}>"
+
+    def to_dict(self):
+        return {
+            'AddressID': self.AddressID,
+            'CustomerID': self.CustomerID,
+            'Street': self.Street,
+            'City': self.City,
+            'State': self.State,
+            'PostalCode': self.PostalCode,
+            'Country': self.Country
+        }
+
 
 class Account(db.Model):
     __tablename__ = 'accounts'

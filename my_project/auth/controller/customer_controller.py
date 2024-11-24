@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from my_project.auth.DAO.models import  Customer, Account, CustomerAccount
+from my_project.auth.DAO.models import Customer, Account, CustomerAccount
 from my_project.auth.service.customer_service import CustomerService
 
 customer_bp = Blueprint('customers', __name__)
@@ -61,3 +61,14 @@ def get_customers_with_accounts():
 
     return jsonify(result)
 
+@customer_bp.route('/customers/bulk', methods=['POST'])
+def insert_bulk_customers():
+    try:
+        data = request.get_json()
+        base_name = data['base_name']
+        start_number = data['start_number']
+
+        CustomerService.insert_bulk_customers(base_name, start_number)
+        return jsonify({'message': 'Bulk customers inserted successfully'}), 201
+    except Exception as e:
+        return jsonify({'message': str(e)}), 400

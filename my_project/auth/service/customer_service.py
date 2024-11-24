@@ -1,4 +1,5 @@
 from my_project.auth.DAO.models import Customer
+from sqlalchemy.sql import text
 from extensions import db
 
 class CustomerService:
@@ -42,3 +43,15 @@ class CustomerService:
             db.session.commit()
             return customer
         return None
+
+
+    @staticmethod
+    def insert_bulk_customers(base_name, start_number):
+        query = text("""
+        CALL InsertNonameRows(:base_name, :start_number, 'customers')
+        """)
+        db.session.execute(query, {
+            'base_name': base_name,
+            'start_number': start_number
+        })
+        db.session.commit()

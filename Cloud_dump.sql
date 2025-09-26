@@ -1,15 +1,9 @@
--- ========================================
--- Database creation
--- ========================================
 CREATE DATABASE IF NOT EXISTS `private_bank_lab5` 
 DEFAULT CHARACTER SET utf8mb4 
 COLLATE utf8mb4_0900_ai_ci;
 
 USE `private_bank_lab5`;
 
--- ========================================
--- Drop tables if exist
--- ========================================
 DROP TABLE IF EXISTS transferhistory;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS transactiontypes;
@@ -18,14 +12,11 @@ DROP TABLE IF EXISTS beneficiaries;
 DROP TABLE IF EXISTS accountbankdetails;
 DROP TABLE IF EXISTS bankdetails;
 DROP TABLE IF EXISTS cards;
+DROP TABLE IF EXISTS customeraddresses;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS customers;
-DROP TABLE IF EXISTS customeraddresses;
 DROP TABLE IF EXISTS change_log;
 
--- ========================================
--- Table creation
--- ========================================
 CREATE TABLE IF NOT EXISTS `Customers` (
     `CustomerID` INT NOT NULL AUTO_INCREMENT,
     `FirstName` VARCHAR(100) NOT NULL,
@@ -133,7 +124,8 @@ CREATE TABLE IF NOT EXISTS `CustomerAddresses` (
     `State` VARCHAR(100) NULL,
     `PostalCode` VARCHAR(20) NOT NULL,
     `Country` VARCHAR(100) NOT NULL,
-    PRIMARY KEY (`AddressID`)
+    PRIMARY KEY (`AddressID`),
+    FOREIGN KEY (`CustomerID`) REFERENCES `Customers`(`CustomerID`)
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `change_log` (
@@ -144,9 +136,6 @@ CREATE TABLE IF NOT EXISTS `change_log` (
     `new_data` TEXT
 ) ENGINE = InnoDB;
 
--- ========================================
--- Indexes
--- ========================================
 CREATE INDEX `idx_account_id_cards` ON `Cards` (`AccountID`);
 CREATE INDEX `idx_customer_id_bankdetails` ON `BankDetails` (`CustomerID`);
 CREATE INDEX `idx_card_id_bankdetails` ON `BankDetails` (`CardID`);
@@ -158,10 +147,6 @@ CREATE INDEX `idx_from_account_transactions` ON `Transactions` (`FromAccountID`)
 CREATE INDEX `idx_transaction_date_transactions` ON `Transactions` (`TransactionDate`);
 CREATE INDEX `idx_from_account_transferhistory` ON `TransferHistory` (`FromAccountID`);
 CREATE INDEX `idx_beneficiary_id_transferhistory` ON `TransferHistory` (`BeneficiaryID`);
-
--- ========================================
--- Insert Data
--- ========================================
 
 INSERT INTO Customers (FirstName, LastName, Email, Phone)
 VALUES
@@ -294,26 +279,9 @@ VALUES
 (9, 9, 9, 700.50, 'Direct debit for insurance'),
 (10, 10, 10, 1200.00, 'Loan repayment for car');
 
-INSERT INTO CustomerAddresses (CustomerID, Street, City, State, PostalCode, Country)
-VALUES
-(1, 'Hrushevskoho Street, 1', 'Kyiv', NULL, '01001', 'Ukraine'),
-(2, 'Sumskaya Street, 15', 'Kharkiv', NULL, '61000', 'Ukraine'),
-(3, 'Deribasivska Street, 3', 'Odesa', NULL, '65000', 'Ukraine'),
-(4, 'Freedom Avenue, 20', 'Lviv', NULL, '79000', 'Ukraine'),
-(5, 'Shevchenko Street, 8', 'Dnipro', NULL, '49000', 'Ukraine'),
-(6, 'Peace Street, 5', 'Zaporizhzhia', NULL, '69000', 'Ukraine'),
-(7, 'Soborna Street, 12', 'Vinnytsia', NULL, '21000', 'Ukraine'),
-(8, 'Cossack Street, 7', 'Poltava', NULL, '36000', 'Ukraine'),
-(9, 'Victory Avenue, 10', 'Cherkasy', NULL, '18000', 'Ukraine'),
-(10, 'Franko Street, 2', 'Ivano-Frankivsk', NULL, '76000', 'Ukraine');
-
--- ========================================
--- Procedures, Functions, Triggers
--- ========================================
 DELIMITER $$
 
--- InsertCustomerAddress
-CREATE PROCEDURE InsertCustomerAddress(
+CREATE PROCEDURE InsertCustomerAddress (
     IN p_CustomerID INT,
     IN p_Street VARCHAR(255),
     IN p_City VARCHAR(100),
@@ -322,152 +290,67 @@ CREATE PROCEDURE InsertCustomerAddress(
     IN p_Country VARCHAR(100)
 )
 BEGIN
-    IF EXISTS (
-        SELECT 1 FROM CustomerAddresses
-        WHERE CustomerID = p_CustomerID
-        AND Street = p_Street
-        AND City = p_City
-        AND PostalCode = p_PostalCode
-        AND Country = p_Country
-    ) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Duplicate address for this customer already exists.';
-    ELSE
-        INSERT INTO CustomerAddresses (CustomerID, Street, City, State, PostalCode, Country)
-        VALUES (p_CustomerID, p_Street, p_City, p_State, p_PostalCode, p_Country);
-    END IF;
+    INSERT INTO CustomerAddresses (CustomerID, Street, City, State, PostalCode, Country)
+    VALUES (p_CustomerID, p_Street, p_City, p_State, p_PostalCode, p_Country);
 END $$
 
--- InsertCustomerAccount
-CREATE PROCEDURE InsertCustomerAccount(
-    IN p_FirstName VARCHAR(100),
-    IN p_LastName VARCHAR(100),
-    IN p_AccountNumber VARCHAR(20)
+CREATE PROCEDURE InsertCustomerAccount (
+    IN p_CustomerID INT,
+    IN p_AccountID INT
 )
 BEGIN
-    DECLARE customer_id INT;
-    DECLARE account_id INT;
-
-    SELECT CustomerID INTO customer_id
-    FROM Customers
-    WHERE FirstName = p_FirstName AND LastName = p_LastName
-    LIMIT 1;
-
-    SELECT AccountID INTO account_id
-    FROM Accounts
-    WHERE AccountNumber = p_AccountNumber
-    LIMIT 1;
-
-    IF EXISTS (
-        SELECT 1
-        FROM CustomerAccounts
-        WHERE CustomerID = customer_id AND AccountID = account_id
-    ) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Duplicate CustomerAccount entry exists';
-    ELSE
-        INSERT INTO CustomerAccounts (CustomerID, AccountID)
-        VALUES (customer_id, account_id);
-    END IF;
+    INSERT INTO CustomerAccounts (CustomerID, AccountID)
+    VALUES (p_CustomerID, p_AccountID);
 END $$
 
--- GetBalanceStat function
-CREATE FUNCTION GetBalanceStat(stat_type VARCHAR(3))
-RETURNS DECIMAL(10, 2)
+CREATE FUNCTION GetBalanceStat(p_AccountID INT) RETURNS VARCHAR(50)
 DETERMINISTIC
 BEGIN
-    DECLARE result DECIMAL(10, 2);
-    IF stat_type = 'MAX' THEN
-        SELECT MAX(Balance) INTO result FROM Accounts;
-    ELSEIF stat_type = 'MIN' THEN
-        SELECT MIN(Balance) INTO result FROM Accounts;
-    ELSEIF stat_type = 'SUM' THEN
-        SELECT SUM(Balance) INTO result FROM Accounts;
-    ELSEIF stat_type = 'AVG' THEN
-        SELECT AVG(Balance) INTO result FROM Accounts;
+    DECLARE v_balance DECIMAL(10,2);
+    DECLARE v_status VARCHAR(50);
+
+    SELECT Balance INTO v_balance
+    FROM Accounts
+    WHERE AccountID = p_AccountID;
+
+    IF v_balance < 1000 THEN
+        SET v_status = 'Low Balance';
+    ELSEIF v_balance >= 1000 AND v_balance < 5000 THEN
+        SET v_status = 'Medium Balance';
     ELSE
-        SET result = NULL;
+        SET v_status = 'High Balance';
     END IF;
-    RETURN result;
+
+    RETURN v_status;
 END $$
 
--- GetAccountsBalanceStat procedure
-CREATE PROCEDURE GetAccountsBalanceStat(stat_type VARCHAR(3))
-BEGIN
-    SELECT GetBalanceStat(stat_type) AS BalanceStat;
-END $$
-
--- Triggers
-CREATE TRIGGER `before_insert_customer_address`
-BEFORE INSERT ON `CustomerAddresses`
+CREATE TRIGGER after_customer_insert
+AFTER INSERT ON Customers
 FOR EACH ROW
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Customers WHERE CustomerID = NEW.CustomerID) THEN
+    INSERT INTO change_log (action_type, new_data)
+    VALUES ('INSERT', CONCAT('CustomerID=', NEW.CustomerID, ', FirstName=', NEW.FirstName, ', LastName=', NEW.LastName));
+END $$
+
+CREATE TRIGGER after_customer_update
+AFTER UPDATE ON Customers
+FOR EACH ROW
+BEGIN
+    INSERT INTO change_log (action_type, old_data, new_data)
+    VALUES (
+        'UPDATE',
+        CONCAT('CustomerID=', OLD.CustomerID, ', FirstName=', OLD.FirstName, ', LastName=', OLD.LastName),
+        CONCAT('CustomerID=', NEW.CustomerID, ', FirstName=', NEW.FirstName, ', LastName=', NEW.LastName)
+    );
+END $$
+
+CREATE TRIGGER validate_account_number 
+BEFORE INSERT ON Accounts
+FOR EACH ROW
+BEGIN
+    IF NOT NEW.AccountNumber REGEXP '^[A-QL-Z]{2}-[0-9]{3}-[0-9]{2}$' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'CustomerID does not exist in Customers table.';
-    END IF;
-END $$
-
-CREATE TRIGGER `before_update_customer_address`
-BEFORE UPDATE ON `CustomerAddresses`
-FOR EACH ROW
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Customers WHERE CustomerID = NEW.CustomerID) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'CustomerID does not exist in Customers table.';
-    END IF;
-END $$
-
-CREATE TRIGGER prevent_update BEFORE UPDATE ON `Beneficiaries`
-FOR EACH ROW
-BEGIN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Updates are not allowed on the Beneficiaries table';
-END $$
-
-CREATE TRIGGER prevent_insert BEFORE INSERT ON `Beneficiaries`
-FOR EACH ROW
-BEGIN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Inserts are not allowed on the Beneficiaries table';
-END $$
-
-CREATE TRIGGER prevent_delete BEFORE DELETE ON `Beneficiaries`
-FOR EACH ROW
-BEGIN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Deletes are not allowed on the Beneficiaries table';
-END $$
-
-CREATE TRIGGER log_transaction_update AFTER UPDATE ON `Transactions`
-FOR EACH ROW
-BEGIN
-    INSERT INTO `change_log` (`action_type`, `old_data`, `new_data`)
-    VALUES ('UPDATE', 
-            CONCAT('FromAccountID: ', OLD.FromAccountID, ', Amount: ', OLD.Amount), 
-            CONCAT('FromAccountID: ', NEW.FromAccountID, ', Amount: ', NEW.Amount));
-END $$
-
-CREATE TRIGGER log_transaction_insert AFTER INSERT ON `Transactions`
-FOR EACH ROW
-BEGIN
-    INSERT INTO `change_log` (`action_type`, `old_data`, `new_data`)
-    VALUES ('INSERT', NULL, CONCAT('FromAccountID: ', NEW.FromAccountID, ', Amount: ', NEW.Amount));
-END $$
-
-CREATE TRIGGER log_transaction_delete AFTER DELETE ON `Transactions`
-FOR EACH ROW
-BEGIN
-    INSERT INTO `change_log` (`action_type`, `old_data`, `new_data`)
-    VALUES ('DELETE', CONCAT('FromAccountID: ', OLD.FromAccountID, ', Amount: ', OLD.Amount), NULL);
-END $$
-
-CREATE TRIGGER validate_account_number BEFORE INSERT ON `Accounts`
-FOR EACH ROW
-BEGIN
-    IF NOT NEW.AccountNumber REGEXP '^[A-KL-NP-QST-Z]{2}-[0-9]{3}-[0-9]{2}$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'AccountNumber must follow the format: 2 letters (except M and R), "-", 3 digits, "-", 2 digits.';
+        SET MESSAGE_TEXT = 'AccountNumber must follow the format: 2 letters (крім M і R), "-", 3 digits, "-", 2 digits.';
     END IF;
 END $$
 

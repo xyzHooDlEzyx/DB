@@ -13,25 +13,29 @@ def split_accounts():
     responses:
       201:
         description: Tables created successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Tables created successfully
-            tables:
-              type: array
-              items:
-                type: string
-              example: ["accounts_1", "accounts_2"]
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Tables created successfully
+                tables:
+                  type: array
+                  items:
+                    type: string
+                  example: ["accounts_1", "accounts_2"]
       500:
         description: Internal server error
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Error message
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Error message
     """
     try:
         tables = SplitAccountsService.split_accounts()

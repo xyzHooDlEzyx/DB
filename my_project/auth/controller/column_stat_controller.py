@@ -20,31 +20,53 @@ def get_column_stat():
     parameters:
       - name: table_name
         in: query
-        type: string
         required: true
+        schema:
+          type: string
         description: Name of the table
       - name: column_name
         in: query
-        type: string
         required: true
+        schema:
+          type: string
         description: Name of the column
       - name: stat_type
         in: query
-        type: string
         required: true
+        schema:
+          type: string
         description: Type of statistic (e.g., min, max, avg, sum)
     responses:
       200:
         description: Returns the requested statistic
-        schema:
-          type: object
-          properties:
-            result:
-              type: number
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result:
+                  type: number
+                  example: 123.45
       400:
         description: Missing or invalid parameters
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Parameters 'table_name', 'column_name', and 'stat_type' are required."
       404:
         description: No result returned from procedure
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "No result returned from procedure."
     """
     try:
         table_name = request.args.get('table_name')

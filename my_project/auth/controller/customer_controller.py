@@ -14,10 +14,12 @@ def get_customers():
     responses:
       200:
         description: List of customers
-        schema:
-          type: array
-          items:
-            type: object
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
     """
     customers = CustomerService.get_all_customers()
     return jsonify([customer.to_dict() for customer in customers])
@@ -32,16 +34,26 @@ def get_customer(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
         description: ID of the customer
     responses:
       200:
         description: Customer data
-        schema:
-          type: object
+        content:
+          application/json:
+            schema:
+              type: object
       404:
         description: Customer not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     customer = CustomerService.get_customer_by_id(id)
     if customer:
@@ -55,21 +67,21 @@ def create_customer():
     ---
     tags:
       - Customers
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            FirstName:
-              type: string
-            LastName:
-              type: string
-            Email:
-              type: string
-            Phone:
-              type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              FirstName:
+                type: string
+              LastName:
+                type: string
+              Email:
+                type: string
+              Phone:
+                type: string
     responses:
       201:
         description: Customer created successfully
@@ -90,22 +102,24 @@ def update_customer(id):
     parameters:
       - name: id
         in: path
-        type: integer
-        required: true
-      - name: body
-        in: body
         required: true
         schema:
-          type: object
-          properties:
-            FirstName:
-              type: string
-            LastName:
-              type: string
-            Email:
-              type: string
-            Phone:
-              type: string
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              FirstName:
+                type: string
+              LastName:
+                type: string
+              Email:
+                type: string
+              Phone:
+                type: string
     responses:
       200:
         description: Customer updated successfully
@@ -128,8 +142,9 @@ def delete_customer(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
     responses:
       200:
         description: Customer deleted successfully
@@ -151,11 +166,18 @@ def get_customer_accounts(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
     responses:
       200:
         description: List of accounts for the customer
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
       404:
         description: Customer not found
     """
@@ -176,6 +198,12 @@ def get_customers_with_accounts():
     responses:
       200:
         description: List of customers with accounts
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
     """
     customers = Customer.query.all()
     result = []
@@ -197,17 +225,17 @@ def insert_bulk_customers():
     ---
     tags:
       - Customers
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            base_name:
-              type: string
-            start_number:
-              type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              base_name:
+                type: string
+              start_number:
+                type: integer
     responses:
       201:
         description: Bulk customers inserted successfully

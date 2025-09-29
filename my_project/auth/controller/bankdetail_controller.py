@@ -13,19 +13,21 @@ def get_bankdetails():
     responses:
       200:
         description: A list of bank details
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              bank_name:
-                type: string
-              branch:
-                type: string
-              swift_code:
-                type: string
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  bank_name:
+                    type: string
+                  branch:
+                    type: string
+                  swift_code:
+                    type: string
     """
     bankdetails = BankDetailService.get_all_bankdetails()
     return jsonify([bankdetail.to_dict() for bankdetail in bankdetails])
@@ -33,21 +35,28 @@ def get_bankdetails():
 @bankdetail_bp.route('/bankdetails/<int:id>', methods=['GET'])
 def get_bankdetail(id):
     """
-    Get bank detail by ID
+    Get all bank details
     ---
     tags:
       - BankDetails
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        description: Bank detail ID
     responses:
       200:
-        description: Bank detail object
-      404:
-        description: Bank detail not found
+        description: A list of bank details
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  bank_name:
+                    type: string
+                  branch:
+                    type: string
+                  swift_code:
+                    type: string
     """
     bankdetail = BankDetailService.get_bankdetail_by_id(id)
     if bankdetail:
@@ -61,19 +70,19 @@ def create_bankdetail():
     ---
     tags:
       - BankDetails
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            bank_name:
-              type: string
-            branch:
-              type: string
-            swift_code:
-              type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              bank_name:
+                type: string
+              branch:
+                type: string
+              swift_code:
+                type: string
     responses:
       201:
         description: Bank detail created successfully
@@ -94,20 +103,23 @@ def update_bankdetail(id):
     parameters:
       - name: id
         in: path
-        type: integer
-        required: true
-      - name: body
-        in: body
         required: true
         schema:
-          type: object
-          properties:
-            bank_name:
-              type: string
-            branch:
-              type: string
-            swift_code:
-              type: string
+          type: integer
+        description: Bank detail ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              bank_name:
+                type: string
+              branch:
+                type: string
+              swift_code:
+                type: string
     responses:
       200:
         description: Bank detail updated successfully
@@ -130,8 +142,10 @@ def delete_bankdetail(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
+        description: Bank detail ID
     responses:
       200:
         description: Bank detail deleted successfully

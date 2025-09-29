@@ -14,17 +14,19 @@ def get_accounts():
     responses:
       200:
         description: A list of accounts
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              balance:
-                type: number
-              customer_id:
-                type: integer
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  balance:
+                    type: number
+                  customer_id:
+                    type: integer
     """
     accounts = AccountService.get_all_accounts()
     return jsonify([account.to_dict() for account in accounts])
@@ -33,21 +35,32 @@ def get_accounts():
 def get_account(id):
     """
     Get account by ID
-    --- 
+    ---
+    tags:
+      - Accounts
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Account ID
     responses:
       200:
         description: A single account
-        schema:
-          type: object
-          properties:
-            id:
-              type: integer
-            balance:
-              type: number
-            customer_id:
-              type: integer
-        404:
-          description: Account not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                balance:
+                  type: number
+                customer_id:
+                  type: integer
+      404:
+        description: Account not found
     """
     account = AccountService.get_account_by_id(id)
     if account:
@@ -61,17 +74,17 @@ def create_account():
     ---
     tags:
       - Accounts
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            balance:
-              type: number
-            customer_id:
-              type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              balance:
+                type: number
+              customer_id:
+                type: integer
     responses:
       201:
         description: Account created successfully
@@ -127,23 +140,26 @@ def get_account_cards(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
         description: Account ID
     responses:
       200:
         description: List of cards for the account
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              card_number:
-                type: string
-              expiry_date:
-                type: string
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  card_number:
+                    type: string
+                  expiry_date:
+                    type: string
       404:
         description: No cards found or account does not exist
     """

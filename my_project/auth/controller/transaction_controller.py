@@ -13,10 +13,12 @@ def get_transactions():
     responses:
       200:
         description: List of all transactions
-        schema:
-          type: array
-          items:
-            type: object
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
     """
     transactions = TransactionService.get_all_transactions()
     return jsonify([transaction.to_dict() for transaction in transactions])
@@ -31,22 +33,27 @@ def get_transaction(id):
     parameters:
       - in: path
         name: id
-        type: integer
         required: true
+        schema:
+          type: integer
         description: ID of the transaction
     responses:
       200:
         description: Transaction details
-        schema:
-          type: object
+        content:
+          application/json:
+            schema:
+              type: object
       404:
         description: Transaction not found
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction not found
     """
     transaction = TransactionService.get_transaction_by_id(id)
     if transaction:
@@ -55,32 +62,100 @@ def get_transaction(id):
 
 @transaction_bp.route('/transactions', methods=['POST'])
 def create_transaction():
+    from flask import Blueprint, request, jsonify
+from my_project.auth.service.transaction_service import TransactionService
+
+transaction_bp = Blueprint('transactions', __name__)
+
+@transaction_bp.route('/transactions', methods=['GET'])
+def get_transactions():
+    """
+    Get all transactions
+    ---
+    tags:
+      - Transactions
+    responses:
+      200:
+        description: List of all transactions
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+    """
+    transactions = TransactionService.get_all_transactions()
+    return jsonify([transaction.to_dict() for transaction in transactions])
+
+
+@transaction_bp.route('/transactions/<int:id>', methods=['GET'])
+def get_transaction(id):
+    """
+    Get a transaction by ID
+    ---
+    tags:
+      - Transactions
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: ID of the transaction
+    responses:
+      200:
+        description: Transaction details
+        content:
+          application/json:
+            schema:
+              type: object
+      404:
+        description: Transaction not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction not found
+    """
+    transaction = TransactionService.get_transaction_by_id(id)
+    if transaction:
+        return jsonify(transaction.to_dict())
+    return jsonify({'message': 'Transaction not found'}), 404
+
+
+@transaction_bp.route('/transactions', methods=['POST'])
+def create_transaction():
     """
     Create a new transaction
     ---
     tags:
       - Transactions
-    parameters:
-      - in: body
-        name: transaction
-        required: true
-        schema:
-          type: object
-          example:
-            FromAccountID: 1
-            BeneficiaryID: 2
-            TransactionTypeID: 1
-            Amount: 100.50
-            Status: Completed
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            example:
+              FromAccountID: 1
+              BeneficiaryID: 2
+              TransactionTypeID: 1
+              Amount: 100.50
+              Status: Completed
     responses:
       201:
         description: Transaction created successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction created successfully
     """
     data = request.get_json()
     TransactionService.create_transaction(data)
@@ -96,34 +171,40 @@ def update_transaction(id):
     parameters:
       - in: path
         name: id
-        type: integer
-        required: true
-        description: ID of the transaction to update
-      - in: body
-        name: transaction
         required: true
         schema:
-          type: object
-          example:
-            Amount: 200.00
-            Status: Pending
+          type: integer
+        description: ID of the transaction to update
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            example:
+              Amount: 200.00
+              Status: Pending
     responses:
       200:
         description: Transaction updated successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction updated successfully
       404:
         description: Transaction not found
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction not found
     """
     data = request.get_json()
     transaction = TransactionService.update_transaction(id, data)
@@ -141,26 +222,31 @@ def delete_transaction(id):
     parameters:
       - in: path
         name: id
-        type: integer
         required: true
+        schema:
+          type: integer
         description: ID of the transaction to delete
     responses:
       200:
         description: Transaction deleted successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction deleted successfully
       404:
         description: Transaction not found
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Transaction not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Transaction not found
     """
     transaction = TransactionService.delete_transaction(id)
     if transaction:

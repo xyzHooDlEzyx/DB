@@ -1,6 +1,7 @@
 import yaml
 from flask import Flask
 from flasgger import Swagger
+from markupsafe import Markup
 from extensions import db
 from my_project.auth.controller.customer_controller import customer_bp
 from my_project.auth.controller.account_controller import account_bp
@@ -14,7 +15,18 @@ from my_project.auth.controller.table_split_controller import split_accounts_bp
 
 app = Flask(__name__)
 
-swagger = Swagger(app)
+swagger_config = {
+    "swagger": "2.0",
+    "info": {
+        "title": "My Bank API",
+        "description": "API documentation for the banking service",
+        "version": "1.0.0"
+    },
+    "host": "localhost:5000",
+    "basePath": "/api",
+    "schemes": ["http", "https"]
+}
+swagger = Swagger(app, template=swagger_config)
 
 with open("config/app.yml", "r") as ymlfile:
     config = yaml.safe_load(ymlfile)
@@ -44,6 +56,14 @@ def home():
     responses:
       200:
         description: Returns a message about the service status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Flask app is running with config from app.yml!
     """
     return 'Flask app is running with config from app.yml!'
 
@@ -51,10 +71,6 @@ def home():
 def not_found_error(error):
     """ 
     404 Error Handler
-    ---
-    responses:
-      404:
-        description: Resource not found
     """
     return {'message': 'Resource not found'}, 404
 
@@ -62,10 +78,6 @@ def not_found_error(error):
 def internal_error(error):
     """
     500 Error Handler
-    ---
-    responses:
-      500:
-        description: Internal server error
     """
     db.session.rollback()
     return {'message': 'Internal server error'}, 500

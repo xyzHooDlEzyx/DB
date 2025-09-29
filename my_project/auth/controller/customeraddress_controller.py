@@ -10,48 +10,52 @@ def create_customer_address():
     ---
     tags:
       - CustomerAddresses
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            CustomerID:
-              type: integer
-              example: 1
-            Street:
-              type: string
-              example: "123 Main St"
-            City:
-              type: string
-              example: "Kyiv"
-            State:
-              type: string
-              example: "Kyiv Oblast"
-            PostalCode:
-              type: string
-              example: "01001"
-            Country:
-              type: string
-              example: "Ukraine"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              CustomerID:
+                type: integer
+                example: 1
+              Street:
+                type: string
+                example: "123 Main St"
+              City:
+                type: string
+                example: "Kyiv"
+              State:
+                type: string
+                example: "Kyiv Oblast"
+              PostalCode:
+                type: string
+                example: "01001"
+              Country:
+                type: string
+                example: "Ukraine"
     responses:
       201:
         description: Customer address inserted successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Customer address inserted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Customer address inserted successfully
       400:
         description: Invalid input or error
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Error message
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Error message
     """
     data = request.get_json()
     try:

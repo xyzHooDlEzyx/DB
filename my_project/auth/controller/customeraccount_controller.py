@@ -10,36 +10,40 @@ def create_customer_account():
     ---
     tags:
       - CustomerAccounts
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            CustomerID:
-              type: integer
-              example: 1
-            AccountID:
-              type: integer
-              example: 101
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              CustomerID:
+                type: integer
+                example: 1
+              AccountID:
+                type: integer
+                example: 101
     responses:
       201:
         description: Customer account linked successfully
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Customer account linked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Customer account linked successfully
       400:
         description: Invalid input or error
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Error message
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Error message
     """
     data = request.get_json()
     try:

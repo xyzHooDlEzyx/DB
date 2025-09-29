@@ -13,19 +13,21 @@ def get_cards():
     responses:
       200:
         description: A list of all cards
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              card_number:
-                type: string
-              expiry_date:
-                type: string
-              account_id:
-                type: integer
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  card_number:
+                    type: string
+                  expiry_date:
+                    type: string
+                  account_id:
+                    type: integer
     """
     cards = CardService.get_all_cards()
     return jsonify([card.to_dict() for card in cards])
@@ -40,15 +42,30 @@ def get_card(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
         description: Card ID
     responses:
       200:
         description: Card object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                card_number:
+                  type: string
+                expiry_date:
+                  type: string
+                account_id:
+                  type: integer
       404:
         description: Card not found
     """
+
     card = CardService.get_card_by_id(id)
     if card:
         return jsonify(card.to_dict())
@@ -61,19 +78,19 @@ def create_card():
     ---
     tags:
       - Cards
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            card_number:
-              type: string
-            expiry_date:
-              type: string
-            account_id:
-              type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              card_number:
+                type: string
+              expiry_date:
+                type: string
+              account_id:
+                type: integer
     responses:
       201:
         description: Card created successfully
@@ -94,20 +111,23 @@ def update_card(id):
     parameters:
       - name: id
         in: path
-        type: integer
-        required: true
-      - name: body
-        in: body
         required: true
         schema:
-          type: object
-          properties:
-            card_number:
-              type: string
-            expiry_date:
-              type: string
-            account_id:
-              type: integer
+          type: integer
+        description: Card ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              card_number:
+                type: string
+              expiry_date:
+                type: string
+              account_id:
+                type: integer
     responses:
       200:
         description: Card updated successfully
@@ -130,8 +150,10 @@ def delete_card(id):
     parameters:
       - name: id
         in: path
-        type: integer
         required: true
+        schema:
+          type: integer
+        description: Card ID
     responses:
       200:
         description: Card deleted successfully

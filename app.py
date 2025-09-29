@@ -1,7 +1,7 @@
 import yaml
 from flask import Flask
 from flasgger import Swagger
-from markupsafe import Markup
+from flask_cors import CORS
 from extensions import db
 from my_project.auth.controller.customer_controller import customer_bp
 from my_project.auth.controller.account_controller import account_bp
@@ -14,6 +14,7 @@ from my_project.auth.controller.column_stat_controller import stat_bp
 from my_project.auth.controller.table_split_controller import split_accounts_bp
 
 app = Flask(__name__)
+CORS(app)
 
 swagger_config = {
     "swagger": "2.0",

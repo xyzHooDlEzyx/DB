@@ -101,7 +101,7 @@ class Card(db.Model):
     ExpiryDate = db.Column(db.Date, nullable=False)
     CardType = db.Column(db.String(50), nullable=False)
 
-    bank_detail = db.relationship('BankDetail', backref='card', lazy=True, cascade="all, delete")
+    bank_details = db.relationship('BankDetail', backref='card', lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return f"<Card {self.CardNumber}>"
@@ -123,7 +123,7 @@ class BankDetail(db.Model):
     CustomerID = db.Column(db.Integer, db.ForeignKey('Customers.CustomerID'), nullable=False)
     BankName = db.Column(db.String(100), nullable=False)
     BankCode = db.Column(db.String(20), nullable=False)
-    CardID = db.Column(db.Integer, db.ForeignKey('cards.CardID'), nullable=False)
+    CardID = db.Column(db.Integer, db.ForeignKey('Cards.CardID'), nullable=False)
 
     def __repr__(self):
         return f"<BankDetail {self.BankName}>"

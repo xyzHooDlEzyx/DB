@@ -1,4 +1,4 @@
 app:
-  debug: true
-  secret_key: "megasecretkey12345"
-  database_url: "mysql+mysqlconnector://root:admin@localhost/private_bank_lab3/4"
+  debug: false
+  secret_key: "REPLACE_WITH_A_SECRET_KEY"
+  database_url: "mysql+pymysql://DB_USER:DB_PASSWORD@RDS_ENDPOINT:3306/private_bank_lab5"

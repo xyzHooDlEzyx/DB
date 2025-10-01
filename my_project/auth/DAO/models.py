@@ -2,7 +2,7 @@ from extensions import db
 
 
 class Customer(db.Model):
-    __tablename__ = 'customers'
+    __tablename__ = 'Customers'
 
     CustomerID = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(100), nullable=False)
@@ -24,9 +24,34 @@ class Customer(db.Model):
             'Phone': self.Phone
         }
 
+class CustomerAddress(db.Model):
+    __tablename__ = 'CustomerAddresses'
+
+    AddressID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    CustomerID = db.Column(db.Integer, nullable=False)
+    Street = db.Column(db.String(255), nullable=False)
+    City = db.Column(db.String(100), nullable=False)
+    State = db.Column(db.String(100), nullable=True)
+    PostalCode = db.Column(db.String(20), nullable=False)
+    Country = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"<CustomerAddress {self.AddressID} - {self.Street}, {self.City}>"
+
+    def to_dict(self):
+        return {
+            'AddressID': self.AddressID,
+            'CustomerID': self.CustomerID,
+            'Street': self.Street,
+            'City': self.City,
+            'State': self.State,
+            'PostalCode': self.PostalCode,
+            'Country': self.Country
+        }
+
 
 class Account(db.Model):
-    __tablename__ = 'accounts'
+    __tablename__ = 'Accounts'
 
     AccountID = db.Column(db.Integer, primary_key=True)
     AccountNumber = db.Column(db.String(20), unique=True, nullable=False)
@@ -52,10 +77,10 @@ class Account(db.Model):
         }
 
 class CustomerAccount(db.Model):
-    __tablename__ = 'customeraccounts'
+    __tablename__ = 'CustomerAccounts'
 
-    CustomerID = db.Column(db.Integer, db.ForeignKey('customers.CustomerID'), primary_key=True, nullable=False)
-    AccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), primary_key=True, nullable=False)
+    CustomerID = db.Column(db.Integer, db.ForeignKey('Customers.CustomerID'), primary_key=True, nullable=False)
+    AccountID = db.Column(db.Integer, db.ForeignKey('Accounts.AccountID'), primary_key=True, nullable=False)
 
     def __repr__(self):
         return f"<CustomerAccount {self.CustomerID} - {self.AccountID}>"
@@ -68,15 +93,15 @@ class CustomerAccount(db.Model):
 
 
 class Card(db.Model):
-    __tablename__ = 'cards'
+    __tablename__ = 'Cards'
 
     CardID = db.Column(db.Integer, primary_key=True)
-    AccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), nullable=False)
+    AccountID = db.Column(db.Integer, db.ForeignKey('Accounts.AccountID'), nullable=False)
     CardNumber = db.Column(db.String(16), unique=True, nullable=False)
     ExpiryDate = db.Column(db.Date, nullable=False)
     CardType = db.Column(db.String(50), nullable=False)
 
-    bank_detail = db.relationship('BankDetail', backref='card', lazy=True, cascade="all, delete")
+    bank_details = db.relationship('BankDetail', backref='card', lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return f"<Card {self.CardNumber}>"
@@ -92,13 +117,13 @@ class Card(db.Model):
 
 
 class BankDetail(db.Model):
-    __tablename__ = 'bankdetails'
+    __tablename__ = 'BankDetails'
 
     BankDetailsID = db.Column(db.Integer, primary_key=True)
-    CustomerID = db.Column(db.Integer, db.ForeignKey('customers.CustomerID'), nullable=False)
+    CustomerID = db.Column(db.Integer, db.ForeignKey('Customers.CustomerID'), nullable=False)
     BankName = db.Column(db.String(100), nullable=False)
     BankCode = db.Column(db.String(20), nullable=False)
-    CardID = db.Column(db.Integer, db.ForeignKey('cards.CardID'), nullable=False)
+    CardID = db.Column(db.Integer, db.ForeignKey('Cards.CardID'), nullable=False)
 
     def __repr__(self):
         return f"<BankDetail {self.BankName}>"
@@ -114,10 +139,10 @@ class BankDetail(db.Model):
 
 
 class AccountBankDetail(db.Model):
-    __tablename__ = 'accountbankdetails'
+    __tablename__ = 'AccountBankDetails'
 
-    AccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), primary_key=True, nullable=False)
-    BankDetailsID = db.Column(db.Integer, db.ForeignKey('bankdetails.BankDetailsID'), primary_key=True, nullable=False)
+    AccountID = db.Column(db.Integer, db.ForeignKey('Accounts.AccountID'), primary_key=True, nullable=False)
+    BankDetailsID = db.Column(db.Integer, db.ForeignKey('BankDetails.BankDetailsID'), primary_key=True, nullable=False)
 
     def __repr__(self):
         return f"<AccountBankDetail {self.AccountID} - {self.BankDetailsID}>"
@@ -130,11 +155,11 @@ class AccountBankDetail(db.Model):
 
 
 class Beneficiary(db.Model):
-    __tablename__ = 'beneficiaries'
+    __tablename__ = 'Beneficiaries'
 
     BeneficiaryID = db.Column(db.Integer, primary_key=True)
     BeneficiaryName = db.Column(db.String(255), nullable=False)
-    BankDetailsID = db.Column(db.Integer, db.ForeignKey('bankdetails.BankDetailsID'), nullable=False)
+    BankDetailsID = db.Column(db.Integer, db.ForeignKey('BankDetails.BankDetailsID'), nullable=False)
     BeneficiaryType = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
@@ -150,7 +175,7 @@ class Beneficiary(db.Model):
 
 
 class TransactionType(db.Model):
-    __tablename__ = 'transactiontypes'
+    __tablename__ = 'TransactionTypes'
 
     TransactionTypeID = db.Column(db.Integer, primary_key=True)
     TransactionTypeName = db.Column(db.String(100))
@@ -166,12 +191,12 @@ class TransactionType(db.Model):
 
 
 class Transaction(db.Model):
-    __tablename__ = 'transactions'
+    __tablename__ = 'Transactions'
 
     TransactionID = db.Column(db.Integer, primary_key=True)
-    FromAccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), nullable=False)
-    BeneficiaryID = db.Column(db.Integer, db.ForeignKey('beneficiaries.BeneficiaryID'), nullable=False)
-    TransactionTypeID = db.Column(db.Integer, db.ForeignKey('transactiontypes.TransactionTypeID'), nullable=False)
+    FromAccountID = db.Column(db.Integer, db.ForeignKey('Accounts.AccountID'), nullable=False)
+    BeneficiaryID = db.Column(db.Integer, db.ForeignKey('Beneficiaries.BeneficiaryID'), nullable=False)
+    TransactionTypeID = db.Column(db.Integer, db.ForeignKey('TransactionTypes.TransactionTypeID'), nullable=False)
     Amount = db.Column(db.Numeric(10, 2), nullable=False)
     TransactionDate = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False)
     Status = db.Column(db.String(50), nullable=False)
@@ -192,12 +217,12 @@ class Transaction(db.Model):
 
 
 class TransferHistory(db.Model):
-    __tablename__ = 'transferhistory'
+    __tablename__ = 'TransferHistory'
 
     TransferID = db.Column(db.Integer, primary_key=True)
-    TransactionID = db.Column(db.Integer, db.ForeignKey('transactions.TransactionID'), nullable=False)
-    FromAccountID = db.Column(db.Integer, db.ForeignKey('accounts.AccountID'), nullable=False)
-    BeneficiaryID = db.Column(db.Integer, db.ForeignKey('beneficiaries.BeneficiaryID'), nullable=False)
+    TransactionID = db.Column(db.Integer, db.ForeignKey('Transactions.TransactionID'), nullable=False)
+    FromAccountID = db.Column(db.Integer, db.ForeignKey('Accounts.AccountID'), nullable=False)
+    BeneficiaryID = db.Column(db.Integer, db.ForeignKey('Beneficiaries.BeneficiaryID'), nullable=False)
     Amount = db.Column(db.Numeric(10, 2), nullable=False)
     TransferDate = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False)
     Description = db.Column(db.String(255))

@@ -18,18 +18,39 @@ app = Flask(__name__)
 CORS(app)
 
 app.config.from_object(Config)
+app.config.setdefault('SWAGGER', {
+  'title': 'My Bank API',
+  'uiversion': 3
+})
+
+swagger_template = {
+  "openapi": "3.0.3",
+  "info": {
+    "title": "My Bank API",
+    "description": "API documentation for the banking service",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {"url": "/api"}
+  ]
+}
 
 swagger_config = {
-    "swagger": "2.0",
-    "info": {
-        "title": "My Bank API",
-        "description": "API documentation for the banking service",
-        "version": "1.0.0"
-    },
-    "basePath": "/api",
-    "schemes": ["http", "https"]
+  "headers": [],
+  "specs": [
+    {
+      "endpoint": "apispec_1",
+      "route": "/apispec_1.json",
+      "rule_filter": lambda rule: True,
+      "model_filter": lambda tag: True,
+    }
+  ],
+  "static_url_path": "/flasgger_static",
+  "swagger_ui": True,
+  "specs_route": "/apidocs/"
 }
-swagger = Swagger(app, template=swagger_config)
+
+swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
 db.init_app(app)
 

@@ -1,7 +1,8 @@
-import yaml
 from flask import Flask
 from flasgger import Swagger
 from flask_cors import CORS
+
+from config.config import Config
 from extensions import db
 from my_project.auth.controller.customer_controller import customer_bp
 from my_project.auth.controller.account_controller import account_bp
@@ -16,25 +17,19 @@ from my_project.auth.controller.table_split_controller import split_accounts_bp
 app = Flask(__name__)
 CORS(app)
 
+app.config.from_object(Config)
+
 swagger_config = {
-    "swagger": "2.0",
-    "info": {
-        "title": "My Bank API",
-        "description": "API documentation for the banking service",
-        "version": "1.0.0"
-    },
-    "basePath": "/api",
-    "schemes": ["http", "https"]
+  "swagger": "2.0",
+  "info": {
+    "title": "My Bank API",
+    "description": "API documentation for the banking service",
+    "version": "1.0.0"
+  },
+  "basePath": "/api",
+  "schemes": ["http", "https"]
 }
 swagger = Swagger(app, template=swagger_config)
-
-with open("config/app.yml", "r") as ymlfile:
-    config = yaml.safe_load(ymlfile)
-
-app.config['DEBUG'] = config['app']['debug']
-app.config['SECRET_KEY'] = config['app']['secret_key']
-app.config['SQLALCHEMY_DATABASE_URI'] = config['app']['database_url']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 

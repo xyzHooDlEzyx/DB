@@ -24,15 +24,14 @@ app.config.setdefault('SWAGGER', {
 })
 
 swagger_template = {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "My Bank API",
-    "description": "API documentation for the banking service",
-    "version": "1.0.0"
-  },
-  "servers": [
-    {"url": "/api"}
-  ]
+    "swagger": "2.0",
+    "info": {
+        "title": "My Bank API",
+        "description": "API documentation for the banking service",
+        "version": "1.0.0"
+    },
+    "basePath": "/api",
+    "schemes": ["http", "https"]
 }
 
 swagger_config = {

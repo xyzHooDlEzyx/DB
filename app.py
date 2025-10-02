@@ -20,14 +20,14 @@ CORS(app)
 app.config.from_object(Config)
 
 swagger_config = {
-  "swagger": "2.0",
-  "info": {
-    "title": "My Bank API",
-    "description": "API documentation for the banking service",
-    "version": "1.0.0"
-  },
-  "basePath": "/api",
-  "schemes": ["http", "https"]
+    "swagger": "2.0",
+    "info": {
+        "title": "My Bank API",
+        "description": "API documentation for the banking service",
+        "version": "1.0.0"
+    },
+    "basePath": "/api",
+    "schemes": ["http", "https"]
 }
 swagger = Swagger(app, template=swagger_config)
 

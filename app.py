@@ -1,6 +1,7 @@
 from flask import Flask
 from flasgger import Swagger
 from flask_cors import CORS
+from flask_basicauth import BasicAuth
 
 from config.config import Config
 from extensions import db
@@ -18,6 +19,10 @@ app = Flask(__name__)
 CORS(app)
 
 app.config.from_object(Config)
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = 'password'
+app.config['BASIC_AUTH_FORCE'] = True
+app.config.setdefault('BASIC_AUTH_REALM', 'Protected API')
 app.config.setdefault('SWAGGER', {
   'title': 'My Bank API',
   'uiversion': 3
@@ -50,6 +55,7 @@ swagger_config = {
 }
 
 swagger = Swagger(app, config=swagger_config, template=swagger_template)
+basic_auth = BasicAuth(app)
 
 db.init_app(app)
 
@@ -64,6 +70,7 @@ app.register_blueprint(stat_bp, url_prefix='/api')
 app.register_blueprint(split_accounts_bp, url_prefix='/api')
 
 @app.route('/')
+@basic_auth.required
 def home():
     """
     MAIN PAGE

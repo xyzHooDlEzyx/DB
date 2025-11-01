@@ -40,3 +40,43 @@ class Config:
         )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BASIC_AUTH_USERNAME = os.getenv("BASIC_AUTH_USERNAME", "admin")
+    BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "password")
+    BASIC_AUTH_FORCE = True
+    BASIC_AUTH_REALM = os.getenv("BASIC_AUTH_REALM", "Protected API")
+    SWAGGER = {
+        "title": os.getenv("SWAGGER_TITLE", "Private Bank API"),
+        "uiversion": int(os.getenv("SWAGGER_UI_VERSION", "3")),
+    }
+    SWAGGER_TEMPLATE = {
+        "openapi": os.getenv("SWAGGER_OPENAPI_VERSION", "3.0.3"),
+        "info": {
+            "title": os.getenv("SWAGGER_TITLE", "Private Bank API"),
+            "description": os.getenv(
+                "SWAGGER_DESCRIPTION",
+                "API documentation for the banking service",
+            ),
+            "version": os.getenv("SWAGGER_VERSION", "1.0.0"),
+        },
+        "servers": [
+            {"url": os.getenv("SWAGGER_SERVER_URL", "http://localhost:5000/api")}
+        ],
+    }
+    SWAGGER_CONFIG = {
+        "headers": [],
+        "specs": [
+            {
+                "endpoint": "apispec_1",
+                "route": os.getenv("SWAGGER_SPEC_ROUTE", "/apispec_1.json"),
+                "rule_filter": lambda rule: True,
+                "model_filter": lambda tag: True,
+            }
+        ],
+        "static_url_path": "/flasgger_static",
+        "swagger_ui": True,
+        "specs_route": os.getenv("SWAGGER_UI_ROUTE", "/apidocs/"),
+    }
+    GUNICORN_CMD_ARGS = os.getenv(
+        "GUNICORN_CMD_ARGS", "--workers 3 --bind 0.0.0.0:8000 --timeout 120"
+    )
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

@@ -20,13 +20,13 @@ def get_bankdetails():
               items:
                 type: object
                 properties:
-                  id:
+                  BankDetailID:
                     type: integer
-                  bank_name:
+                  BankName:
                     type: string
-                  branch:
+                  Branch:
                     type: string
-                  swift_code:
+                  SwiftCode:
                     type: string
     """
     bankdetails = BankDetailService.get_all_bankdetails()
@@ -35,28 +35,35 @@ def get_bankdetails():
 @bankdetail_bp.route('/bankdetails/<int:id>', methods=['GET'])
 def get_bankdetail(id):
     """
-    Get all bank details
+    Get a bank detail by ID
     ---
     tags:
       - BankDetails
     responses:
       200:
-        description: A list of bank details
+        description: Bank detail data
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  bank_name:
-                    type: string
-                  branch:
-                    type: string
-                  swift_code:
-                    type: string
+              type: object
+              properties:
+                BankDetailID:
+                  type: integer
+                BankName:
+                  type: string
+                Branch:
+                  type: string
+                SwiftCode:
+                  type: string
+      404:
+        description: Bank detail not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     bankdetail = BankDetailService.get_bankdetail_by_id(id)
     if bankdetail:
@@ -77,17 +84,31 @@ def create_bankdetail():
           schema:
             type: object
             properties:
-              bank_name:
+              BankName:
                 type: string
-              branch:
+              Branch:
                 type: string
-              swift_code:
+              SwiftCode:
                 type: string
     responses:
       201:
         description: Bank detail created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       400:
         description: Invalid input
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     BankDetailService.create_bankdetail(data)
@@ -114,17 +135,31 @@ def update_bankdetail(id):
           schema:
             type: object
             properties:
-              bank_name:
+              BankName:
                 type: string
-              branch:
+              Branch:
                 type: string
-              swift_code:
+              SwiftCode:
                 type: string
     responses:
       200:
         description: Bank detail updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Bank detail not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     bankdetail = BankDetailService.update_bankdetail(id, data)
@@ -149,8 +184,22 @@ def delete_bankdetail(id):
     responses:
       200:
         description: Bank detail deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Bank detail not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     bankdetail = BankDetailService.delete_bankdetail(id)
     if bankdetail:

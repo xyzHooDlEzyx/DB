@@ -20,13 +20,13 @@ def get_cards():
               items:
                 type: object
                 properties:
-                  id:
+                  CardID:
                     type: integer
-                  card_number:
+                  CardNumber:
                     type: string
-                  expiry_date:
+                  ExpiryDate:
                     type: string
-                  account_id:
+                  AccountID:
                     type: integer
     """
     cards = CardService.get_all_cards()
@@ -48,22 +48,29 @@ def get_card(id):
         description: Card ID
     responses:
       200:
-        description: Card object
+        description: Card details
         content:
           application/json:
             schema:
               type: object
               properties:
-                id:
+                CardID:
                   type: integer
-                card_number:
+                CardNumber:
                   type: string
-                expiry_date:
+                ExpiryDate:
                   type: string
-                account_id:
+                AccountID:
                   type: integer
       404:
         description: Card not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
 
     card = CardService.get_card_by_id(id)
@@ -85,17 +92,31 @@ def create_card():
           schema:
             type: object
             properties:
-              card_number:
+              CardNumber:
                 type: string
-              expiry_date:
+              ExpiryDate:
                 type: string
-              account_id:
+              AccountID:
                 type: integer
     responses:
       201:
         description: Card created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       400:
         description: Invalid input
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     CardService.create_card(data)
@@ -122,17 +143,31 @@ def update_card(id):
           schema:
             type: object
             properties:
-              card_number:
+              CardNumber:
                 type: string
-              expiry_date:
+              ExpiryDate:
                 type: string
-              account_id:
+              AccountID:
                 type: integer
     responses:
       200:
         description: Card updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Card not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     card = CardService.update_card(id, data)
@@ -157,8 +192,22 @@ def delete_card(id):
     responses:
       200:
         description: Card deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Card not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     card = CardService.delete_card(id)
     if card:

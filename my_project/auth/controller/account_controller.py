@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from my_project.auth.DAO.models import  Card, Account
+from my_project.auth.DAO.models import Account
 from my_project.auth.service.account_service import AccountService
 
 account_bp = Blueprint('accounts', __name__)
@@ -21,11 +21,11 @@ def get_accounts():
               items:
                 type: object
                 properties:
-                  id:
+                  AccountID:
                     type: integer
-                  balance:
+                  Balance:
                     type: number
-                  customer_id:
+                  CustomerID:
                     type: integer
     """
     accounts = AccountService.get_all_accounts()
@@ -53,14 +53,21 @@ def get_account(id):
             schema:
               type: object
               properties:
-                id:
+                AccountID:
                   type: integer
-                balance:
+                Balance:
                   type: number
-                customer_id:
+                CustomerID:
                   type: integer
       404:
         description: Account not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     account = AccountService.get_account_by_id(id)
     if account:
@@ -81,15 +88,32 @@ def create_account():
           schema:
             type: object
             properties:
-              balance:
+              Balance:
                 type: number
-              customer_id:
+              CustomerID:
                 type: integer
+              Currency:
+                type: string
+                nullable: true
     responses:
       201:
         description: Account created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       400:
         description: Invalid input
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     AccountService.create_account(data)
@@ -105,24 +129,43 @@ def update_account(id):
     parameters:
       - name: id
         in: path
-        type: integer
-        required: true
-        description: Account ID
-      - name: body
-        in: body
         required: true
         schema:
-          type: object
-          properties:
-            balance:
-              type: number
-            customer_id:
-              type: integer
+          type: integer
+        description: Account ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Balance:
+                type: number
+              CustomerID:
+                type: integer
+              Status:
+                type: string
+                nullable: true
     responses:
       200:
         description: Account updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Account not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     account = AccountService.update_account(id, data)
@@ -154,14 +197,21 @@ def get_account_cards(id):
               items:
                 type: object
                 properties:
-                  id:
+                  CardID:
                     type: integer
-                  card_number:
+                  CardNumber:
                     type: string
-                  expiry_date:
+                  ExpiryDate:
                     type: string
       404:
         description: No cards found or account does not exist
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     cards = AccountService.get_cards_by_account_id(id)
     if cards is not None:

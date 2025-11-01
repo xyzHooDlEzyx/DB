@@ -1,14 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
+
 from my_project.auth.service.column_stat_service import ColumnStatService
 
 stat_bp = Blueprint('stats', __name__)
 
-@stat_bp.route('/column_stat', methods=['GET'])
-def get_column_stat():
-    from flask import Blueprint, request, jsonify
-from my_project.auth.service.column_stat_service import ColumnStatService
-
-stat_bp = Blueprint('stats', __name__)
 
 @stat_bp.route('/column_stat', methods=['GET'])
 def get_column_stat():
@@ -56,7 +51,7 @@ def get_column_stat():
               properties:
                 message:
                   type: string
-                  example: "Parameters 'table_name', 'column_name', and 'stat_type' are required."
+                  example: Parameters 'table_name', 'column_name', and 'stat_type' are required.
       404:
         description: No result returned from procedure
         content:
@@ -66,21 +61,21 @@ def get_column_stat():
               properties:
                 message:
                   type: string
-                  example: "No result returned from procedure."
+                  example: No result returned from procedure.
     """
+    table_name = request.args.get('table_name')
+    column_name = request.args.get('column_name')
+    stat_type = request.args.get('stat_type')
+
+    if not table_name or not column_name or not stat_type:
+        return jsonify({"message": "Parameters 'table_name', 'column_name', and 'stat_type' are required."}), 400
+
     try:
-        table_name = request.args.get('table_name')
-        column_name = request.args.get('column_name')
-        stat_type = request.args.get('stat_type')
-
-        if not table_name or not column_name or not stat_type:
-            return jsonify({"message": "Parameters 'table_name', 'column_name', and 'stat_type' are required."}), 400
-
         result = ColumnStatService.get_column_stat(table_name, column_name, stat_type)
+    except Exception as exc:
+        return jsonify({"message": str(exc)}), 400
 
-        if result is not None:
-            return jsonify({"result": result}), 200
-        return jsonify({"message": "No result returned from procedure."}), 404
+    if result is not None:
+        return jsonify({"result": result}), 200
 
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400
+    return jsonify({"message": "No result returned from procedure."}), 404

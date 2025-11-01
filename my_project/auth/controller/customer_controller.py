@@ -20,6 +20,17 @@ def get_customers():
               type: array
               items:
                 type: object
+                properties:
+                  CustomerID:
+                    type: integer
+                  FirstName:
+                    type: string
+                  LastName:
+                    type: string
+                  Email:
+                    type: string
+                  Phone:
+                    type: string
     """
     customers = CustomerService.get_all_customers()
     return jsonify([customer.to_dict() for customer in customers])
@@ -45,6 +56,17 @@ def get_customer(id):
           application/json:
             schema:
               type: object
+              properties:
+                CustomerID:
+                  type: integer
+                FirstName:
+                  type: string
+                LastName:
+                  type: string
+                Email:
+                  type: string
+                Phone:
+                  type: string
       404:
         description: Customer not found
         content:
@@ -85,8 +107,22 @@ def create_customer():
     responses:
       201:
         description: Customer created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       400:
         description: Invalid input
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     CustomerService.create_customer(data)
@@ -123,8 +159,22 @@ def update_customer(id):
     responses:
       200:
         description: Customer updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Customer not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     data = request.get_json()
     customer = CustomerService.update_customer(id, data)
@@ -148,8 +198,22 @@ def delete_customer(id):
     responses:
       200:
         description: Customer deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       404:
         description: Customer not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     customer = CustomerService.delete_customer(id)
     if customer:
@@ -178,8 +242,28 @@ def get_customer_accounts(id):
               type: array
               items:
                 type: object
+                properties:
+                  AccountID:
+                    type: integer
+                  AccountNumber:
+                    type: string
+                  Balance:
+                    type: string
+                  Currency:
+                    type: string
+                  AccountType:
+                    type: string
+                  CreatedAt:
+                    type: string
       404:
         description: Customer not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     customer = CustomerService.get_customer_by_id(id)
     if customer:
@@ -204,6 +288,34 @@ def get_customers_with_accounts():
               type: array
               items:
                 type: object
+                properties:
+                  CustomerID:
+                    type: integer
+                  FirstName:
+                    type: string
+                  LastName:
+                    type: string
+                  Email:
+                    type: string
+                  Phone:
+                    type: string
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        AccountID:
+                          type: integer
+                        AccountNumber:
+                          type: string
+                        Balance:
+                          type: string
+                        Currency:
+                          type: string
+                        AccountType:
+                          type: string
+                        CreatedAt:
+                          type: string
     """
     customers = Customer.query.all()
     result = []
@@ -239,8 +351,22 @@ def insert_bulk_customers():
     responses:
       201:
         description: Bulk customers inserted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
       400:
         description: Invalid input or error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
     """
     try:
         data = request.get_json()

@@ -58,7 +58,7 @@ class Config:
             ),
             "version": os.getenv("SWAGGER_VERSION", "1.0.0"),
         },
-        "host": os.getenv("SWAGGER_HOST", "localhost:5000"),
+        "host": os.getenv("SWAGGER_HOST", "localhost:8000"),
         "basePath": os.getenv("SWAGGER_BASE_PATH", "/api"),
         "schemes": [os.getenv("SWAGGER_SCHEME", "http")],
     }

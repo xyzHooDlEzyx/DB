@@ -54,13 +54,20 @@ class Config:
             "title": os.getenv("SWAGGER_TITLE", "Private Bank API"),
             "description": os.getenv(
                 "SWAGGER_DESCRIPTION",
-                "API documentation for the banking service",
+                "API documentation for the banking service. Use the Authorize button and enter the BASIC_AUTH_USERNAME/BASIC_AUTH_PASSWORD to try secured endpoints.",
             ),
             "version": os.getenv("SWAGGER_VERSION", "1.0.0"),
         },
         "host": os.getenv("SWAGGER_HOST", "localhost:8000"),
         "basePath": os.getenv("SWAGGER_BASE_PATH", "/api"),
         "schemes": [os.getenv("SWAGGER_SCHEME", "http")],
+        "securityDefinitions": {
+            "basicAuth": {
+                "type": "basic",
+                "description": "Standard HTTP Basic authentication."
+            }
+        },
+        "security": [{"basicAuth": []}],
     }
     SWAGGER_CONFIG = {
         "headers": [],

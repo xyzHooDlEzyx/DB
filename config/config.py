@@ -49,7 +49,7 @@ class Config:
         "uiversion": int(os.getenv("SWAGGER_UI_VERSION", "3")),
     }
     SWAGGER_TEMPLATE = {
-        "openapi": os.getenv("SWAGGER_OPENAPI_VERSION", "3.0.3"),
+        "swagger": os.getenv("SWAGGER_SPEC_VERSION", "2.0"),
         "info": {
             "title": os.getenv("SWAGGER_TITLE", "Private Bank API"),
             "description": os.getenv(
@@ -58,9 +58,9 @@ class Config:
             ),
             "version": os.getenv("SWAGGER_VERSION", "1.0.0"),
         },
-        "servers": [
-            {"url": os.getenv("SWAGGER_SERVER_URL", "http://localhost:5000/api")}
-        ],
+        "host": os.getenv("SWAGGER_HOST", "localhost:5000"),
+        "basePath": os.getenv("SWAGGER_BASE_PATH", "/api"),
+        "schemes": [os.getenv("SWAGGER_SCHEME", "http")],
     }
     SWAGGER_CONFIG = {
         "headers": [],

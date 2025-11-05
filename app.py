@@ -41,7 +41,6 @@ def create_app(config_object=Config):
   register_error_handlers(app)
 
   @app.route("/")
-  @basic_auth.required
   def home():
     """
     MAIN PAGE
@@ -60,6 +59,8 @@ def create_app(config_object=Config):
     """
     app.logger.debug("Health check endpoint hit.")
     return {"message": "Flask app is running with config from app.yml!"}
+
+  basic_auth.exempt(home)
 
   return app
 

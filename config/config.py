@@ -44,6 +44,7 @@ class Config:
     BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "password")
     BASIC_AUTH_FORCE = True
     BASIC_AUTH_REALM = os.getenv("BASIC_AUTH_REALM", "Protected API")
+    BASIC_AUTH_EXEMPT = ["home"]
     SWAGGER = {
         "title": os.getenv("SWAGGER_TITLE", "Private Bank API"),
         "uiversion": int(os.getenv("SWAGGER_UI_VERSION", "3")),
